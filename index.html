@@ -1,0 +1,1613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TEC India PQC Evaluation Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 25%, #334155 50%, #475569 75%, #64748b 100%);
+            min-height: 100vh;
+            color: #333;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 50%, rgba(255, 153, 51, 0.3), transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(19, 136, 8, 0.3), transparent 50%),
+                        radial-gradient(circle at 40% 80%, rgba(255, 255, 255, 0.3), transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .tec-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .tec-emblem {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #ff9933, #ffffff, #138808);
+            border-radius: 50%;
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #000080;
+            border: 3px solid #000080;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ff9933, #138808, #000080);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .header .subtitle {
+            font-size: 1.3em;
+            color: #000080;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .header .description {
+            font-size: 1.1em;
+            color: #6b7280;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .nav-tab {
+            padding: 15px 30px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 600;
+            font-size: 16px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-tab::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #ff9933, #138808);
+            transition: left 0.4s ease;
+            z-index: -1;
+        }
+
+        .nav-tab:hover::before {
+            left: 0;
+        }
+
+        .nav-tab:hover {
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-tab.active {
+            background: linear-gradient(135deg, #ff9933, #138808);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .content-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: none;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .level-card {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 25px;
+            border-left: 6px solid;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .level-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #ff9933, #138808, #000080);
+        }
+
+        .level-card:hover {
+            transform: translateX(8px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .level-card:nth-child(1) { border-left-color: #138808; }
+        .level-card:nth-child(2) { border-left-color: #ff9933; }
+        .level-card:nth-child(3) { border-left-color: #000080; }
+
+        .level-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .level-number {
+            background: linear-gradient(135deg, #ff9933, #138808);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            margin-right: 20px;
+            box-shadow: 0 8px 20px rgba(255, 153, 51, 0.3);
+        }
+
+        .level-title {
+            font-size: 1.6em;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .checklist {
+            list-style: none;
+            margin-left: 25px;
+        }
+
+        .checklist li {
+            margin-bottom: 12px;
+            position: relative;
+            padding-left: 35px;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        .checklist li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #138808;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .evaluation-form {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 25px;
+            border: 1px solid rgba(203, 213, 225, 0.5);
+        }
+
+        .form-section {
+            margin-bottom: 35px;
+            padding: 25px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .form-section h3 {
+            color: #1e293b;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+            font-weight: 600;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 14px;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #ff9933;
+            box-shadow: 0 0 0 3px rgba(255, 153, 51, 0.1);
+        }
+
+        .question-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid #ff9933;
+            transition: all 0.3s ease;
+        }
+
+        .question-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .question-header {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .question-number {
+            background: #ff9933;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .question-text {
+            font-size: 16px;
+            font-weight: 500;
+            color: #374151;
+            line-height: 1.5;
+            flex: 1;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            margin-top: 15px;
+            padding-left: 50px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .radio-option:hover {
+            border-color: #ff9933;
+            background: #fef7ed;
+        }
+
+        .radio-option.selected {
+            border-color: #138808;
+            background: #f0fdf4;
+        }
+
+        .radio-option input[type="radio"] {
+            margin-right: 8px;
+            transform: scale(1.2);
+        }
+
+        .radio-option label {
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 0;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #ff9933, #138808);
+            color: white;
+            border: none;
+            padding: 15px 35px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.4s ease;
+            box-shadow: 0 8px 25px rgba(255, 153, 51, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #e07400, #0f5f00);
+            transition: left 0.4s ease;
+        }
+
+        .btn:hover::before {
+            left: 0;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(255, 153, 51, 0.4);
+        }
+
+        .btn span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .results {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 25px;
+            border-left: 5px solid #138808;
+            display: none;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .progress-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .progress-bar {
+            background: #e5e7eb;
+            height: 25px;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #138808, #0f5f00);
+            width: 0%;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(45deg, transparent 35%, rgba(255, 255, 255, 0.3) 50%, transparent 65%);
+            animation: progressShine 2s infinite;
+        }
+
+        @keyframes progressShine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .progress-text {
+            text-align: center;
+            margin-top: 10px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .algorithm-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+            margin-top: 25px;
+        }
+
+        .algorithm-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            border: 2px solid #e5e7eb;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .algorithm-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #ff9933, #138808);
+        }
+
+        .algorithm-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+            border-color: #ff9933;
+        }
+
+        .algorithm-card h3 {
+            color: #1e293b;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            font-weight: 700;
+        }
+
+        .algorithm-card .status {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 15px;
+        }
+
+        .status.standardized { background: #dcfce7; color: #166534; }
+        .status.selected { background: #fef3c7; color: #92400e; }
+
+        .quiz-section {
+            display: none;
+            margin-top: 30px;
+        }
+
+        .quiz-section.active {
+            display: block;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            border-top: 4px solid #ff9933;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: 800;
+            color: #ff9933;
+        }
+
+        .stat-label {
+            color: #6b7280;
+            font-weight: 500;
+            margin-top: 5px;
+        }
+
+        .warning-banner {
+            background: linear-gradient(135deg, #fef3c7 0%, #fed7aa 100%);
+            border: 2px solid #f59e0b;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            color: #92400e;
+        }
+
+        .info-banner {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            border: 2px solid #3b82f6;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            color: #1e40af;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.2em;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .radio-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .algorithm-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="tec-logo">
+                <div class="tec-emblem">TEC</div>
+                <div>
+                    <div style="font-size: 1.2em; font-weight: 600; color: #000080;">Government of India</div>
+                    <div style="font-size: 0.9em; color: #6b7280;">Department of Telecommunications</div>
+                </div>
+            </div>
+            <h1>TEC India PQC Evaluation Platform</h1>
+            <div class="subtitle">Telecommunications Engineering Centre - Post-Quantum Cryptography Assessment</div>
+            <div class="description">Official three-tier evaluation system for Post-Quantum Cryptography implementations in telecommunications and digital infrastructure across India.</div>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showSection('overview')">Overview</button>
+            <button class="nav-tab" onclick="showSection('evaluation')">Start Evaluation</button>
+            <button class="nav-tab" onclick="showSection('algorithms')">Approved Algorithms</button>
+            <button class="nav-tab" onclick="showSection('resources')">TEC Guidelines</button>
+        </div>
+
+        <div id="overview" class="content-section active">
+            <h2 style="margin-bottom: 30px; color: #1e293b; font-size: 2em;">TEC India Three-Tier PQC Evaluation Framework</h2>
+            
+            <div class="info-banner">
+                <h4 style="margin-bottom: 10px;">🇮🇳 About TEC India PQC Initiative</h4>
+                <p>The Telecommunications Engineering Centre (TEC), under the Department of Telecommunications, Government of India, has developed this comprehensive evaluation framework to assess Post-Quantum Cryptography implementations for critical telecommunications and digital infrastructure across India.</p>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">5</div>
+                    <div class="stat-label">Approved PQC Algorithms</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">3</div>
+                    <div class="stat-label">Evaluation Tiers</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">60+</div>
+                    <div class="stat-label">Dynamic Assessment Criteria</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">100%</div>
+                    <div class="stat-label">India Digital Infrastructure Ready</div>
+                </div>
+            </div>
+            
+            <div class="level-card">
+                <div class="level-header">
+                    <div class="level-number">1</div>
+                    <div class="level-title">Basic Compliance & Implementation Verification</div>
+                </div>
+                <p style="margin-bottom: 15px; font-size: 16px; color: #475569;"><strong>Objective:</strong> Verify fundamental PQC implementation compliance with TEC and international standards</p>
+                <ul class="checklist">
+                    <li>Algorithm compliance with TEC-approved PQC standards</li>
+                    <li>Implementation library verification and assessment</li>
+                    <li>Basic functional testing and operational validation</li>
+                    <li>Documentation completeness for Indian regulatory requirements</li>
+                    <li>Interoperability with existing Indian telecommunications infrastructure</li>
+                    <li>Security parameter configuration validation</li>
+                    <li>API design compliance with TEC guidelines</li>
+                </ul>
+                <p style="margin-top: 15px; font-weight: 600; color: #138808;"><strong>Pass Criteria:</strong> 85% compliance (Dynamic questions based on product type)</p>
+            </div>
+
+            <div class="level-card">
+                <div class="level-header">
+                    <div class="level-number">2</div>
+                    <div class="level-title">Security & Performance Analysis</div>
+                </div>
+                <p style="margin-bottom: 15px; font-size: 16px; color: #475569;"><strong>Objective:</strong> Comprehensive security analysis and performance validation for Indian infrastructure</p>
+                <ul class="checklist">
+                    <li>Security level verification for Indian critical infrastructure</li>
+                    <li>Performance benchmarking for Indian network conditions</li>
+                    <li>Memory optimization for resource-constrained environments</li>
+                    <li>Constant-time implementation verification</li>
+                    <li>Randomness quality assessment per Indian standards</li>
+                    <li>Hybrid cryptography implementation for transition period</li>
+                    <li>Integration testing with Indian PKI systems</li>
+                    <li>Compliance with Indian cybersecurity frameworks</li>
+                </ul>
+                <p style="margin-top: 15px; font-weight: 600; color: #ff9933;"><strong>Pass Criteria:</strong> 87% compliance (Enhanced questions based on algorithms used)</p>
+            </div>
+
+            <div class="level-card">
+                <div class="level-header">
+                    <div class="level-number">3</div>
+                    <div class="level-title">Advanced Security & Quantum Readiness</div>
+                </div>
+                <p style="margin-bottom: 15px; font-size: 16px; color: #475569;"><strong>Objective:</strong> Elite-level security validation and quantum threat resistance for national security applications</p>
+                <ul class="checklist">
+                    <li>Advanced side-channel attack resistance testing</li>
+                    <li>Quantum algorithm simulation and resistance verification</li>
+                    <li>National security level cryptographic validation</li>
+                    <li>Integration with Indian government security protocols</li>
+                    <li>Long-term security assessment for critical infrastructure</li>
+                    <li>Formal security verification and mathematical proofs</li>
+                    <li>Compliance with classified communication requirements</li>
+                    <li>Hardware security module compatibility for Indian systems</li>
+                </ul>
+                <p style="margin-top: 15px; font-weight: 600; color: #000080;"><strong>Pass Criteria:</strong> 90% compliance (Specialized questions for critical applications)</p>
+            </div>
+        </div>
+
+        <div id="evaluation" class="content-section">
+            <h2 style="margin-bottom: 30px; color: #1e293b; font-size: 2em;">TEC India PQC Product Assessment</h2>
+            
+            <div class="evaluation-form">
+                <div class="form-section">
+                    <h3>🏢 Product & Organization Details</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="productName">Product/System Name:</label>
+                            <input type="text" id="productName" placeholder="Enter your product name">
+                        </div>
+                        <div class="form-group">
+                            <label for="productVersion">Version:</label>
+                            <input type="text" id="productVersion" placeholder="e.g., 2.1.0">
+                        </div>
+                        <div class="form-group">
+                            <label for="organizationName">Organization/Company:</label>
+                            <input type="text" id="organizationName" placeholder="Your organization name">
+                        </div>
+                        <div class="form-group">
+                            <label for="productType">Product Category:</label>
+                            <select id="productType" onchange="updateQuestions()">
+                                <option value="">Select category</option>
+                                <optgroup label="Telecommunications Infrastructure">
+                                    <option value="telecom-equipment">Telecommunications Equipment (Base Stations, Switches)</option>
+                                    <option value="mobile-infrastructure">Mobile Infrastructure (4G/5G Network Elements)</option>
+                                    <option value="optical-equipment">Optical Transmission Equipment</option>
+                                    <option value="satellite-equipment">Satellite Communication Equipment</option>
+                                    <option value="network-routers">Network Routers & Core Equipment</option>
+                                </optgroup>
+                                <optgroup label="Network Security & VPN">
+                                    <option value="network-security">Network Security Appliance/Firewall</option>
+                                    <option value="vpn-solution">VPN Solutions & Secure Tunneling</option>
+                                    <option value="intrusion-detection">Intrusion Detection/Prevention Systems</option>
+                                    <option value="secure-gateway">Secure Gateway & Proxy Systems</option>
+                                </optgroup>
+                                <optgroup label="Communication & Messaging">
+                                    <option value="messaging-app">Secure Messaging Applications</option>
+                                    <option value="email-security">Email Security & Encryption Systems</option>
+                                    <option value="video-conferencing">Video Conferencing & Collaboration Tools</option>
+                                    <option value="voip-pbx">VoIP & PBX Systems</option>
+                                    <option value="unified-communications">Unified Communications Platforms</option>
+                                </optgroup>
+                                <optgroup label="IoT & Embedded Systems">
+                                    <option value="iot-device">IoT Device/System</option>
+                                    <option value="smart-meters">Smart Meters & Utility Systems</option>
+                                    <option value="industrial-iot">Industrial IoT & SCADA Systems</option>
+                                    <option value="automotive-telematics">Automotive Telematics & Connected Vehicles</option>
+                                    <option value="medical-devices">Connected Medical Devices</option>
+                                </optgroup>
+                                <optgroup label="Financial & Banking">
+                                    <option value="banking-system">Banking & Financial System</option>
+                                    <option value="payment-gateway">Payment Gateway & Processing Systems</option>
+                                    <option value="atm-pos">ATM & POS Terminal Systems</option>
+                                    <option value="digital-wallet">Digital Wallet & Mobile Payment Apps</option>
+                                    <option value="trading-platform">Trading & Investment Platforms</option>
+                                </optgroup>
+                                <optgroup label="Government & Public Sector">
+                                    <option value="government-app">Government Application/Portal</option>
+                                    <option value="digital-identity">Digital Identity & eKYC Systems</option>
+                                    <option value="e-governance">e-Governance & Citizen Services</option>
+                                    <option value="defense-systems">Defense & Military Communication Systems</option>
+                                    <option value="law-enforcement">Law Enforcement & Surveillance Systems</option>
+                                </optgroup>
+                                <optgroup label="Enterprise & Cloud">
+                                    <option value="cloud-platform">Cloud Security Platform</option>
+                                    <option value="enterprise-software">Enterprise Software & ERP Systems</option>
+                                    <option value="database-security">Database Security & Encryption</option>
+                                    <option value="backup-storage">Backup & Storage Security Systems</option>
+                                    <option value="container-security">Container & Microservices Security</option>
+                                </optgroup>
+                                <optgroup label="Authentication & PKI">
+                                    <option value="pki-system">PKI & Certificate Authority Systems</option>
+                                    <option value="smart-card">Smart Card/Hardware Token</option>
+                                    <option value="biometric-system">Biometric Authentication Systems</option>
+                                    <option value="multi-factor-auth">Multi-Factor Authentication Solutions</option>
+                                    <option value="hsm-device">Hardware Security Module (HSM)</option>
+                                </optgroup>
+                                <optgroup label="Development & Libraries">
+                                    <option value="crypto-library">Cryptographic Library/SDK</option>
+                                    <option value="security-framework">Security Framework & Middleware</option>
+                                    <option value="api-security">API Security & Management Platforms</option>
+                                    <option value="development-tools">Security Development Tools</option>
+                                </optgroup>
+                                <optgroup label="Transportation & Logistics">
+                                    <option value="traffic-management">Traffic Management & Smart City Systems</option>
+                                    <option value="logistics-tracking">Logistics & Supply Chain Tracking</option>
+                                    <option value="fleet-management">Fleet Management & Telematics</option>
+                                    <option value="toll-collection">Electronic Toll Collection Systems</option>
+                                </optgroup>
+                                <optgroup label="Other Applications">
+                                    <option value="blockchain-system">Blockchain & Distributed Ledger Systems</option>
+                                    <option value="gaming-platform">Gaming & Entertainment Platforms</option>
+                                    <option value="media-streaming">Media Streaming & Content Delivery</option>
+                                    <option value="other">Other/Custom Application</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>🔐 PQC Implementation Configuration</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="algorithms">TEC-Approved PQC Algorithms Implemented:</label>
+                            <select id="algorithms" multiple size="5" onchange="updateQuestions()">
+                                <option value="ml-kem">ML-KEM (CRYSTALS-Kyber) - Key Encapsulation</option>
+                                <option value="ml-dsa">ML-DSA (CRYSTALS-Dilithium) - Digital Signatures</option>
+                                <option value="slh-dsa">SLH-DSA (SPHINCS+) - Hash-based Signatures</option>
+                                <option value="hqc">HQC - Alternative Key Encapsulation</option>
+                                <option value="falcon">FALCON - Compact Digital Signatures</option>
+                            </select>
+                            <small style="color: #6b7280; margin-top: 5px; display: block;">Hold Ctrl/Cmd to select multiple algorithms</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="implementationLibrary">Primary Implementation Library:</label>
+                            <select id="implementationLibrary" onchange="updateQuestions()">
+                                <option value="">Select implementation approach</option>
+                                <option value="liboqs">Open Quantum Safe (liboqs)</option>
+                                <option value="pqclean">PQClean Reference Implementation</option>
+                                <option value="bouncycastle">Bouncy Castle PQC</option>
+                                <option value="openssl">OpenSSL 3.x with PQC</option>
+                                <option value="wolfssl">wolfSSL PQC Implementation</option>
+                                <option value="microsoft">Microsoft PQC Library</option>
+                                <option value="tec-approved">TEC-Approved Indian Implementation</option>
+                                <option value="custom-indian">Custom Indian Development</option>
+                                <option value="custom-international">Custom International Implementation</option>
+                                <option value="hybrid-approach">Hybrid Multi-Library Approach</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="deploymentEnvironment">Deployment Environment:</label>
+                            <select id="deploymentEnvironment" onchange="updateQuestions()">
+                                <option value="">Select deployment type</option>
+                                <option value="critical-infrastructure">Critical National Infrastructure</option>
+                                <option value="government-systems">Government/Public Sector</option>
+                                <option value="banking-financial">Banking & Financial Services</option>
+                                <option value="telecom-network">Telecommunications Network</option>
+                                <option value="defense-security">Defense & Security Applications</option>
+                                <option value="commercial-enterprise">Commercial Enterprise</option>
+                                <option value="public-facing">Public-Facing Services</option>
+                                <option value="iot-embedded">IoT & Embedded Systems</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="securityRequirement">Security Level Requirement:</label>
+                            <select id="securityRequirement" onchange="updateQuestions()">
+                                <option value="">Select security level</option>
+                                <option value="level1">Level 1 (128-bit equivalent) - Standard</option>
+                                <option value="level3">Level 3 (192-bit equivalent) - Enhanced</option>
+                                <option value="level5">Level 5 (256-bit equivalent) - Maximum</option>
+                                <option value="mixed">Mixed Levels (Algorithm Dependent)</option>
+                                <option value="national-security">National Security Grade</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="warning-banner">
+                    <h4 style="margin-bottom: 10px;">⚠️ Important Instructions</h4>
+                    <p><strong>Please complete all product details above before proceeding with the evaluation.</strong> The assessment questions will be dynamically generated based on your specific product type, algorithms, and deployment requirements to ensure relevant and accurate evaluation.</p>
+                </div>
+
+                <!-- Level 1 Questions -->
+                <div class="quiz-section active" id="level1Quiz">
+                    <h3 style="color: #138808; margin-bottom: 25px; font-size: 1.5em;">📋 Level 1: Basic Compliance & Implementation Verification</h3>
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="level1Progress"></div>
+                        </div>
+                        <div class="progress-text" id="level1ProgressText">0/0 questions answered</div>
+                    </div>
+                    
+                    <div id="level1Questions">
+                        <div class="info-banner">
+                            <p>Please complete the product details above to generate relevant evaluation questions for your specific implementation.</p>
+                        </div>
+                    </div>
+
+                    <button class="btn" id="level1Button" onclick="evaluateLevel1()" disabled>
+                        <span>Evaluate Level 1</span>
+                    </button>
+
+                    <div id="level1Results" class="results">
+                        <h4 style="color: #138808; margin-bottom: 15px;">Level 1 Assessment Results</h4>
+                        <p id="level1Score"></p>
+                        <div id="level1Status"></div>
+                    </div>
+                </div>
+
+                <!-- Level 2 Questions -->
+                <div class="quiz-section" id="level2Quiz">
+                    <h3 style="color: #ff9933; margin-bottom: 25px; font-size: 1.5em;">🔍 Level 2: Security & Performance Analysis</h3>
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="level2Progress"></div>
+                        </div>
+                        <div class="progress-text" id="level2ProgressText">0/0 questions answered</div>
+                    </div>
+                    
+                    <div id="level2Questions">
+                        <!-- Questions will be populated by JavaScript -->
+                    </div>
+
+                    <button class="btn" id="level2Button" onclick="evaluateLevel2()" disabled>
+                        <span>Evaluate Level 2</span>
+                    </button>
+
+                    <div id="level2Results" class="results">
+                        <h4 style="color: #ff9933; margin-bottom: 15px;">Level 2 Assessment Results</h4>
+                        <p id="level2Score"></p>
+                        <div id="level2Status"></div>
+                    </div>
+                </div>
+
+                <!-- Level 3 Questions -->
+                <div class="quiz-section" id="level3Quiz">
+                    <h3 style="color: #000080; margin-bottom: 25px; font-size: 1.5em;">🛡️ Level 3: Advanced Security & Quantum Readiness</h3>
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="level3Progress"></div>
+                        </div>
+                        <div class="progress-text" id="level3ProgressText">0/0 questions answered</div>
+                    </div>
+                    
+                    <div id="level3Questions">
+                        <!-- Questions will be populated by JavaScript -->
+                    </div>
+
+                    <button class="btn" id="level3Button" onclick="evaluateLevel3()" disabled>
+                        <span>Evaluate Level 3</span>
+                    </button>
+
+                    <div id="level3Results" class="results">
+                        <h4 style="color: #000080; margin-bottom: 15px;">Level 3 Assessment Results</h4>
+                        <p id="level3Score"></p>
+                        <div id="level3Status"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="algorithms" class="content-section">
+            <h2 style="margin-bottom: 30px; color: #1e293b; font-size: 2em;">TEC-Approved PQC Algorithms for Indian Infrastructure</h2>
+            
+            <div class="info-banner">
+                <h4 style="margin-bottom: 10px;">🇮🇳 TEC India PQC Approval Status</h4>
+                <p>The following algorithms have been evaluated and approved by TEC India for use in critical telecommunications and digital infrastructure across India, aligned with international standards and national security requirements.</p>
+            </div>
+            
+            <div class="algorithm-grid">
+                <div class="algorithm-card">
+                    <h3>ML-KEM (CRYSTALS-Kyber)</h3>
+                    <p><strong>Type:</strong> Key Encapsulation Mechanism</p>
+                    <p><strong>TEC Status:</strong> Approved for Critical Infrastructure</p>
+                    <p><strong>Foundation:</strong> Module Learning With Errors</p>
+                    <p><strong>Parameters:</strong> ML-KEM-512, ML-KEM-768, ML-KEM-1024</p>
+                    <p><strong>Use Cases:</strong> 5G networks, Banking systems, Government communications</p>
+                    <div class="status standardized">TEC Approved</div>
+                </div>
+
+                <div class="algorithm-card">
+                    <h3>ML-DSA (CRYSTALS-Dilithium)</h3>
+                    <p><strong>Type:</strong> Digital Signature Algorithm</p>
+                    <p><strong>TEC Status:</strong> Approved for All Applications</p>
+                    <p><strong>Foundation:</strong> Module Learning With Errors</p>
+                    <p><strong>Parameters:</strong> ML-DSA-44, ML-DSA-65, ML-DSA-87</p>
+                    <p><strong>Use Cases:</strong> Digital identity, PKI systems, Document signing</p>
+                    <div class="status standardized">TEC Approved</div>
+                </div>
+
+                <div class="algorithm-card">
+                    <h3>SLH-DSA (SPHINCS+)</h3>
+                    <p><strong>Type:</strong> Stateless Hash-based Digital Signature</p>
+                    <p><strong>TEC Status:</strong> Approved for High-Security Applications</p>
+                    <p><strong>Foundation:</strong> Hash Functions</p>
+                    <p><strong>Special Features:</strong> Mathematical diversity, Conservative security</p>
+                    <p><strong>Use Cases:</strong> Defense systems, Long-term archives, Critical certificates</p>
+                    <div class="status standardized">TEC Approved</div>
+                </div>
+
+                <div class="algorithm-card">
+                    <h3>HQC</h3>
+                    <p><strong>Type:</strong> Key Encapsulation Mechanism</p>
+                    <p><strong>TEC Status:</strong> Under Evaluation (Conditional Approval)</p>
+                    <p><strong>Foundation:</strong> Quasi-Cyclic Codes</p>
+                    <p><strong>Purpose:</strong> Backup to ML-KEM with different mathematics</p>
+                    <p><strong>Expected:</strong> Full approval by 2027</p>
+                    <div class="status selected">Evaluation Phase</div>
+                </div>
+
+                <div class="algorithm-card">
+                    <h3>FALCON</h3>
+                    <p><strong>Type:</strong> Digital Signature Algorithm</p>
+                    <p><strong>TEC Status:</strong> Provisional Approval for Testing</p>
+                    <p><strong>Foundation:</strong> NTRU Lattices</p>
+                    <p><strong>Advantage:</strong> Compact signatures, Efficient verification</p>
+                    <p><strong>Use Cases:</strong> IoT devices, Mobile applications, Constrained environments</p>
+                    <div class="status selected">Testing Phase</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 40px; padding: 25px; background: linear-gradient(135deg, #fef3c7 0%, #fed7aa 100%); border-radius: 15px; border-left: 5px solid #f59e0b;">
+                <h3 style="color: #92400e; margin-bottom: 15px;">📋 TEC India Implementation Guidelines</h3>
+                <ul style="color: #92400e; line-height: 1.6;">
+                    <li><strong>Primary Algorithms:</strong> ML-KEM, ML-DSA, and SLH-DSA are fully approved for immediate deployment</li>
+                    <li><strong>Hybrid Transition:</strong> TEC recommends hybrid classical-PQC implementations during transition period</li>
+                    <li><strong>Critical Infrastructure:</strong> Defense and banking systems must implement multiple algorithm types</li>
+                    <li><strong>Compliance Timeline:</strong> Government systems must begin PQC integration by 2025, complete by 2030</li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="resources" class="content-section">
+            <h2 style="margin-bottom: 30px; color: #1e293b; font-size: 2em;">TEC India Guidelines & Resources</h2>
+            
+            <div class="info-banner">
+                <h4 style="margin-bottom: 10px;">📋 About TEC MTCTE Regulations</h4>
+                <p>The Mandatory Testing Certification of Telecommunication Equipment (MTCTE) regulations, implemented by TEC under the Department of Telecommunications, require that all telecommunication equipment must undergo mandatory testing and certification before sale, import or use in India.</p>
+            </div>
+            
+            <div class="algorithm-grid">
+                <div class="algorithm-card">
+                    <h3>🏛️ TEC Standards & Essential Requirements</h3>
+                    <ul style="list-style-type: disc; margin-left: 20px; line-height: 1.6;">
+                        <li><strong>General Requirements (GRs):</strong> Fundamental specifications for telecommunication equipment quality controls</li>
+                        <li><strong>Interface Requirements (IRs):</strong> Specifications for equipment interfaces and interoperability</li>
+                        <li><strong>Service Requirements (SRs):</strong> Service-specific technical requirements and standards</li>
+                        <li><strong>EMI/EMC Requirements:</strong> Electromagnetic interference and compatibility standards</li>
+                        <li><strong>Safety Requirements:</strong> Equipment safety standards for user and network protection</li>
+                        <li><strong>Technical Requirements:</strong> Wireless, IPv4, IPv6, optical parameters, and other technical specifications</li>
+                        <li><strong>TEC GR No.: 91000:2022:</strong> Quantum Key Distribution System standards</li>
+                    </ul>
+                </div>
+
+                <div class="algorithm-card">
+                    <h3>🇮🇳 Regulatory Framework & Compliance</h3>
+                    <ul style="list-style-type: disc; margin-left: 20px; line-height: 1.6;">
+                        <li><strong>Indian Telegraph Act, 1885:</strong> Legal foundation for telecommunication equipment regulation</li>
+                        <li><strong>MTCTE Regulations 2017:</strong> Mandatory certification requirements implemented since 2019</li>
+                        <li><strong>NCIIPC Guidelines:</strong> National Critical Information Infrastructure Protection Centre requirements</li>
+                        <li><strong>CERT-In Framework:</strong> Indian Computer Emergency Response Team cybersecurity standards</li>
+                        <li><strong>RBI Cybersecurity:</strong> Reserve Bank of India guidelines for financial systems</li>
+                        <li><strong>DoT Telecommunications Rules 2025:</strong> Draft gazette notification for updated standards and certification rules</li>
+                        <li><strong>National Quantum Mission:</strong> India's flagship quantum technology initiative established through collaboration with NSCS</li>
+                    </ul>
+                </div>
+
+                <div class="algorithm-card">
+                    <h3>🧪 TEC Testing & Certification Process</h3>
+                    <ul style="list-style-type: disc; margin-left: 20px; line-height: 1.6;">
+                        <li><strong>Accredited Laboratories:</strong> Testing by Indian Accredited labs designated by TEC, IEC/ISO 17025 compliant</li>
+                        <li><strong>Certificate Validity:</strong> TEC certificates are valid for ten years from date of issue</li>
+                        <li><strong>Processing Time:</strong> Certification process typically takes 2-3 months</li>
+                        <li><strong>Product Marking:</strong> Products must be marked with TEC logo and ID number (individual factory code)</li>
+                        <li><strong>Indian Representative:</strong> Foreign OEMs must appoint authorized Indian representative for certification process</li>
+                        <li><strong>Simplified Certification:</strong> Available for specific product categories with declaration-based process</li>
+                        <li><strong>Factory Inspections:</strong> Currently not required but may be implemented in future</li>
+                    </ul>
+                </div>
+
+                <div class="algorithm-card">
+                    <h3>📚 TEC Technical Initiatives</h3>
+                    <ul style="list-style-type: disc; margin-left: 20px; line-height: 1.6;">
+                        <li><strong>3GPP Standards Adoption:</strong> TSDSI transposed 3GPP standards for Release 13-17 into national standards</li>
+                        <li><strong>5G/LTE Standards:</strong> Adoption of 3GPP Release 10-16 standards for LTE-Advanced corresponding to ITU-R M.2012</li>
+                        <li><strong>AI in Telecom:</strong> Standards for assessing AI systems fairness and AI-native telecommunication networks</li>
+                        <li><strong>IoT Security:</strong> Code of Practice for securing consumer Internet of Things (IoT) released by TEC</li>
+                        <li><strong>Quantum Technologies:</strong> Quantum Random Number Generator standards and QKD system guidelines</li>
+                        <li><strong>NGN Transport Lab:</strong> TEC NGN Transport Lab for stakeholder testing and validation</li>
+                        <li><strong>Free Space Optical:</strong> Standards for optical communication in 4G/5G cellular networks and Li-Fi access points</li>
+                    </ul>
+                </div>
+
+                <div class="algorithm-card">
+                    <h3>🏢 TEC International Collaborations</h3>
+                    <ul style="list-style-type: disc; margin-left: 20px; line-height: 1.6;">
+                        <li><strong>IEEE Partnership:</strong> TEC has collaborative relationship with IEEE Standards Association (IEEE-SA)</li>
+                        <li><strong>IEEE-SA Standards Board:</strong> TEC nominees appointed as primary and alternate members on IEEE-SA Standards Board under GEPS program</li>
+                        <li><strong>OCEANIS Initiative:</strong> TEC is founding member of Forum for Ethics in Standards for Autonomous and Intelligent Systems</li>
+                        <li><strong>IEEE Xplore Access:</strong> TEC subscription to IEEE digital library with 5+ million articles, standards, and research papers</li>
+                        <li><strong>ITU Collaboration:</strong> Active participation in ITU-T Study Groups and multilateral telecommunications organizations</li>
+                        <li><strong>C-DOT Partnership:</strong> Collaboration with Centre for Development of Telematics for quantum key distribution development</li>
+                        <li><strong>Global Standards Bodies:</strong> Coordination with international standards organizations for next-generation network elements</li>
+                    </ul>
+                </div>
+
+                <div class="algorithm-card">
+                    <h3>📅 TEC Implementation Roadmap 2025-2030</h3>
+                    <ul style="list-style-type: disc; margin-left: 20px; line-height: 1.6;">
+                        <li><strong>2025 Initiatives:</strong> Annual Action Plan for TEC focusing on emerging technologies and standards</li>
+                        <li><strong>Start-up Support:</strong> Reimbursement scheme for testing and certification charges for start-ups and telecom MSEs</li>
+                        <li><strong>Laboratory Accreditation:</strong> Expansion of accredited labs for testing of CAS (Conditional Access Systems) and SMS</li>
+                        <li><strong>Quantum Readiness:</strong> Implementation of quantum-safe cryptography standards aligned with international timelines</li>
+                        <li><strong>5G/6G Evolution:</strong> Standards development for next-generation mobile networks and infrastructure</li>
+                        <li><strong>Digital India Integration:</strong> Support for TEC as "Centre of Excellence" positioning India as lead telecom knowledge hub</li>
+                        <li><strong>Manufacturing Support:</strong> Network building and manufacturing support for Asia-Pacific telecom leadership</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="warning-banner">
+                <h4 style="margin-bottom: 10px;">⚖️ Legal Compliance Notice</h4>
+                <p>Any telegraph equipment used or capable of being used with telegraph systems under Central Government license must undergo prior mandatory testing and certification as per TEC requirements. TEC certification has evolved from voluntary process (since 1991) to mandatory requirements under MTCTE regulations since 2019.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dynamic question sets based on product type and algorithms
+        const questionBank = {
+            basic: {
+                common: [
+                    "Does your implementation use only TEC-approved PQC algorithms?",
+                    "Are the cryptographic parameters correctly configured according to standards?",
+                    "Does your implementation pass all Known Answer Tests (KAT)?",
+                    "Is comprehensive technical documentation provided in English/Hindi?",
+                    "Does your system handle error conditions securely without information leakage?"
+                ],
+                telecomEquipment: [
+                    "Is your implementation compatible with Indian telecommunications standards?",
+                    "Does your system support interoperability with existing Indian telecom infrastructure?",
+                    "Have you tested integration with Indian network protocols and standards?",
+                    "Does your equipment meet TEC's EMI/EMC requirements?"
+                ],
+                networkSecurity: [
+                    "Does your network security appliance integrate seamlessly with existing firewalls?",
+                    "Is your implementation compatible with Indian network security frameworks?",
+                    "Have you tested deep packet inspection with PQC algorithms?",
+                    "Does your system maintain network performance under PQC operations?"
+                ],
+                vpnSolution: [
+                    "Does your VPN solution properly implement PQC for tunnel establishment?",
+                    "Is your VPN compatible with Indian enterprise networks?",
+                    "Have you tested PQC integration with existing VPN protocols (IPSec, SSL/TLS)?",
+                    "Does your system support hybrid classical-PQC VPN modes during transition?"
+                ],
+                messagingApp: [
+                    "Does your messaging app implement end-to-end encryption using PQC algorithms?",
+                    "Is your application compatible with Indian mobile networks and data standards?",
+                    "Have you implemented proper forward secrecy using PQC methods?",
+                    "Does your app handle key exchange and management securely for group communications?"
+                ],
+                iotDevice: [
+                    "Is your IoT device compatible with TEC's Code of Practice for securing consumer IoT?",
+                    "Does your implementation handle PQC operations within device resource constraints?",
+                    "Have you tested device-to-cloud PQC communication in Indian network conditions?",
+                    "Does your device support secure over-the-air updates with PQC signatures?"
+                ],
+                governmentApp: [
+                    "Does your implementation comply with Indian government cybersecurity frameworks?",
+                    "Is your system compatible with Indian digital identity infrastructure?",
+                    "Have you implemented proper audit logging for government compliance?",
+                    "Does your application integrate with existing government PKI systems?"
+                ],
+                bankingSystem: [
+                    "Does your implementation meet RBI cybersecurity guidelines?",
+                    "Is your system compatible with Indian payment infrastructure (UPI, NEFT, RTGS)?",
+                    "Have you implemented proper transaction integrity verification using PQC?",
+                    "Does your system support integration with existing banking security frameworks?"
+                ],
+                emailSecurity: [
+                    "Does your email security system implement PQC for S/MIME and PGP protocols?",
+                    "Is your implementation compatible with existing enterprise email systems?",
+                    "Have you tested email signing and encryption with PQC algorithms?",
+                    "Does your system handle large-scale email processing with PQC overhead?"
+                ],
+                cloudPlatform: [
+                    "Does your cloud platform implement PQC for data-at-rest and data-in-transit encryption?",
+                    "Is your implementation compatible with major cloud service providers in India?",
+                    "Have you tested PQC integration with container orchestration platforms?",
+                    "Does your system support multi-tenant PQC key management?"
+                ]
+            },
+            security: {
+                mlkem: [
+                    "Does your ML-KEM implementation use constant-time algorithms to prevent timing attacks?",
+                    "Have you verified the entropy quality of your key generation process meets Indian standards?",
+                    "Is your ML-KEM implementation resistant to cache-timing attacks?",
+                    "Does your system properly handle ML-KEM key sizes (512, 768, 1024) according to security requirements?"
+                ],
+                mldsa: [
+                    "Does your ML-DSA signature generation use secure randomness from approved RNG sources?",
+                    "Have you implemented proper signature verification according to FIPS 204 standards?",
+                    "Is your ML-DSA implementation protected against fault injection attacks?",
+                    "Does your system handle ML-DSA signature sizes efficiently in your application context?"
+                ],
+                slhdsa: [
+                    "Does your SLH-DSA implementation use only approved hash functions (SHA-256, SHAKE-256)?",
+                    "Have you optimized memory usage for hash-based operations in your deployment environment?",
+                    "Is your SLH-DSA implementation suitable for long-term archival and verification?",
+                    "Does your system handle the larger signature sizes of SLH-DSA appropriately?"
+                ],
+                hqc: [
+                    "Does your HQC implementation use approved parameters for quasi-cyclic codes?",
+                    "Have you tested your HQC implementation for mathematical correctness?",
+                    "Is your HQC implementation optimized for the target deployment platform?",
+                    "Does your system properly handle HQC's different error correction capabilities?"
+                ],
+                falcon: [
+                    "Does your FALCON implementation handle NTRU lattice operations correctly?",
+                    "Have you optimized FALCON for your specific signature size requirements?",
+                    "Is your FALCON implementation suitable for resource-constrained environments?",
+                    "Does your system properly validate FALCON signature parameters?"
+                ]
+            },
+            advanced: {
+                criticalInfrastructure: [
+                    "Has your implementation been tested against advanced persistent threats targeting Indian infrastructure?",
+                    "Does your system meet national security grade requirements for critical infrastructure protection?",
+                    "Have you conducted formal security verification using mathematical proofs for critical components?",
+                    "Is your implementation resilient against nation-state level attack scenarios?"
+                ],
+                defenseApplications: [
+                    "Is your implementation certified for classified communications per Indian defense standards?",
+                    "Does your system resist sophisticated state-level attack scenarios and intelligence threats?",
+                    "Have you implemented proper key management for defense-grade security requirements?",
+                    "Does your implementation meet requirements for secure communications in hostile environments?"
+                ],
+                financialSystems: [
+                    "Has your implementation been validated for high-frequency trading and real-time financial operations?",
+                    "Does your system maintain transaction integrity under quantum-safe cryptographic operations?",
+                    "Have you implemented proper fraud detection integration with PQC algorithms?",
+                    "Is your implementation compliant with international financial regulatory requirements?"
+                ],
+                telecomNetworks: [
+                    "Has your implementation been tested for 5G network slice security using PQC?",
+                    "Does your system maintain Quality of Service (QoS) requirements under PQC operations?",
+                    "Have you verified interoperability with international roaming and telecom standards?",
+                    "Is your implementation scalable for nationwide telecom network deployment?"
+                ]
+            }
+        };
+
+        let currentQuestions = {level1: [], level2: [], level3: []};
+
+        function showSection(sectionId) {
+            const sections = document.querySelectorAll('.content-section');
+            sections.forEach(section => section.classList.remove('active'));
+            
+            const tabs = document.querySelectorAll('.nav-tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            document.getElementById(sectionId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function updateQuestions() {
+            const productType = document.getElementById('productType').value;
+            const algorithms = Array.from(document.getElementById('algorithms').selectedOptions).map(o => o.value);
+            const deployment = document.getElementById('deploymentEnvironment').value;
+            const library = document.getElementById('implementationLibrary').value;
+
+            if (!productType || algorithms.length === 0) {
+                return;
+            }
+
+            // Generate dynamic questions based on selections
+            generateLevel1Questions(productType, algorithms, deployment, library);
+            generateLevel2Questions(productType, algorithms, deployment, library);
+            generateLevel3Questions(productType, algorithms, deployment, library);
+        }
+
+        function generateLevel1Questions(productType, algorithms, deployment, library) {
+            let questions = [...questionBank.basic.common];
+            
+            // Add product-specific questions based on category
+            const productQuestionMap = {
+                'telecom-equipment': questionBank.basic.telecomEquipment,
+                'mobile-infrastructure': questionBank.basic.telecomEquipment,
+                'optical-equipment': questionBank.basic.telecomEquipment,
+                'network-security': questionBank.basic.networkSecurity,
+                'vpn-solution': questionBank.basic.vpnSolution,
+                'intrusion-detection': questionBank.basic.networkSecurity,
+                'messaging-app': questionBank.basic.messagingApp,
+                'email-security': questionBank.basic.emailSecurity,
+                'video-conferencing': questionBank.basic.messagingApp,
+                'iot-device': questionBank.basic.iotDevice,
+                'smart-meters': questionBank.basic.iotDevice,
+                'industrial-iot': questionBank.basic.iotDevice,
+                'government-app': questionBank.basic.governmentApp,
+                'digital-identity': questionBank.basic.governmentApp,
+                'e-governance': questionBank.basic.governmentApp,
+                'banking-system': questionBank.basic.bankingSystem,
+                'payment-gateway': questionBank.basic.bankingSystem,
+                'atm-pos': questionBank.basic.bankingSystem,
+                'cloud-platform': questionBank.basic.cloudPlatform,
+                'enterprise-software': questionBank.basic.cloudPlatform
+            };
+
+            if (productQuestionMap[productType]) {
+                questions.push(...productQuestionMap[productType]);
+            }
+
+            // Add algorithm-specific questions
+            questions.push("Have you verified that all implemented algorithms use approved parameter sets?");
+            questions.push("Does your implementation properly handle algorithm negotiation and selection?");
+            
+            if (library === 'custom-indian' || library === 'tec-approved') {
+                questions.push("Has your implementation been validated by TEC-approved testing laboratories?");
+                questions.push("Does your implementation meet all TEC MTCTE essential requirements?");
+            }
+
+            // Add deployment environment specific questions
+            if (deployment === 'critical-infrastructure') {
+                questions.push("Does your system meet NCIIPC guidelines for critical infrastructure protection?");
+            }
+
+            questions.push("Does your system support backward compatibility with existing cryptographic infrastructure?");
+            questions.push("Have you implemented proper input validation for all cryptographic operations?");
+            questions.push("Is your API design consistent with TEC guidelines and best practices?");
+            questions.push("Does your implementation provide proper error handling and logging capabilities?");
+
+            currentQuestions.level1 = questions;
+            populateQuestions(1, questions);
+            document.getElementById('level1Button').disabled = false;
+        }
+
+        function generateLevel2Questions(productType, algorithms, deployment, library) {
+            let questions = [
+                "Does your implementation achieve constant-time execution for all cryptographic operations?",
+                "Have you conducted performance benchmarking appropriate for Indian network conditions?",
+                "Is memory usage optimized for your target deployment environment?",
+                "Have you implemented secure random number generation according to Indian standards?",
+                "Does your system properly implement hybrid cryptography during transition period?"
+            ];
+
+            // Add algorithm-specific questions
+            algorithms.forEach(alg => {
+                const algKey = alg.replace('-', '');
+                if (questionBank.security[algKey]) {
+                    questions.push(...questionBank.security[algKey]);
+                }
+            });
+
+            // Add product-specific security questions
+            if (productType.includes('messaging') || productType.includes('email')) {
+                questions.push("Have you implemented perfect forward secrecy for communication sessions?");
+                questions.push("Does your system handle key rotation and management for multi-party communications?");
+            }
+
+            if (productType.includes('vpn') || productType.includes('network')) {
+                questions.push("Have you tested PQC performance impact on network throughput and latency?");
+                questions.push("Does your system maintain security during network handovers and reconnections?");
+            }
+
+            if (productType.includes('iot') || productType.includes('embedded')) {
+                questions.push("Have you optimized PQC operations for low-power and resource-constrained devices?");
+                questions.push("Does your system handle secure firmware updates using PQC digital signatures?");
+            }
+
+            // Add deployment-specific questions
+            if (deployment === 'critical-infrastructure') {
+                questions.push("Have you tested your implementation under high-load Indian network conditions?");
+                questions.push("Does your system maintain security during network disruptions common in India?");
+            }
+
+            if (deployment === 'banking-financial') {
+                questions.push("Have you verified compliance with RBI's cybersecurity framework requirements?");
+                questions.push("Does your system maintain transaction processing speed with PQC overhead?");
+            }
+
+            questions.push("Have you verified interoperability with major Indian PKI systems?");
+            questions.push("Does your implementation resist basic side-channel attacks?");
+            questions.push("Have you conducted security analysis against known vulnerabilities?");
+            questions.push("Is your key lifecycle management secure and compliant with Indian regulations?");
+            questions.push("Does your system implement proper session management and timeout mechanisms?");
+
+            currentQuestions.level2 = questions;
+            populateQuestions(2, questions);
+        }
+
+        function generateLevel3Questions(productType, algorithms, deployment, library) {
+            let questions = [
+                "Have you conducted comprehensive side-channel analysis (timing, power, electromagnetic)?",
+                "Does your implementation resist fault injection and glitch attacks?",
+                "Have you performed quantum algorithm simulation testing?",
+                "Does your system successfully integrate with Indian government security protocols?",
+                "Have you completed formal security proof verification?"
+            ];
+
+            // Add deployment-specific advanced questions
+            const deploymentQuestionMap = {
+                'critical-infrastructure': questionBank.advanced.criticalInfrastructure,
+                'defense-security': questionBank.advanced.defenseApplications,
+                'banking-financial': questionBank.advanced.financialSystems,
+                'telecom-network': questionBank.advanced.telecomNetworks
+            };
+
+            if (deploymentQuestionMap[deployment]) {
+                questions.push(...deploymentQuestionMap[deployment]);
+            }
+
+            // Add product-specific advanced questions
+            if (productType.includes('messaging') || productType.includes('communication')) {
+                questions.push("Have you implemented protection against traffic analysis and metadata leakage?");
+                questions.push("Does your system resist correlation attacks across multiple communication sessions?");
+            }
+
+            if (productType.includes('cloud') || productType.includes('enterprise')) {
+                questions.push("Have you implemented secure multi-tenancy with PQC key isolation?");
+                questions.push("Does your system handle secure key escrow and compliance requirements?");
+            }
+
+            questions.push("Does your implementation comply with NCIIPC guidelines for critical infrastructure?");
+            questions.push("Have you verified long-term security parameters against future quantum threats?");
+            questions.push("Does your system resist advanced correlation and clustering attacks?");
+            questions.push("Have you implemented protection against sophisticated timing analysis?");
+            questions.push("Does your implementation properly handle quantum-classical hybrid attack scenarios?");
+            questions.push("Have you verified security against adaptive chosen-ciphertext attacks?");
+            questions.push("Does your system implement proper quantum-safe forward secrecy mechanisms?");
+            questions.push("Have you conducted penetration testing specifically targeting PQC implementations?");
+            questions.push("Does your implementation meet international standards for quantum-resistant cryptography?");
+
+            currentQuestions.level3 = questions;
+            populateQuestions(3, questions);
+        }
+
+        function populateQuestions(level, questions) {
+            const container = document.getElementById(`level${level}Questions`);
+            container.innerHTML = '';
+            
+            questions.forEach((question, index) => {
+                const questionCard = document.createElement('div');
+                questionCard.className = 'question-card';
+                questionCard.innerHTML = `
+                    <div class="question-header">
+                        <div class="question-number">${index + 1}</div>
+                        <div class="question-text">${question}</div>
+                    </div>
+                    <div class="radio-group">
+                        <div class="radio-option" onclick="selectAnswer(${level}, ${index + 1}, 'yes')">
+                            <input type="radio" id="level${level}_q${index + 1}_yes" name="level${level}_q${index + 1}" value="yes">
+                            <label for="level${level}_q${index + 1}_yes">Yes</label>
+                        </div>
+                        <div class="radio-option" onclick="selectAnswer(${level}, ${index + 1}, 'no')">
+                            <input type="radio" id="level${level}_q${index + 1}_no" name="level${level}_q${index + 1}" value="no">
+                            <label for="level${level}_q${index + 1}_no">No</label>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(questionCard);
+            });
+
+            updateProgress(level);
+        }
+
+        function selectAnswer(level, questionNum, answer) {
+            const radio = document.getElementById(`level${level}_q${questionNum}_${answer}`);
+            radio.checked = true;
+            
+            // Update visual selection
+            const radioOptions = radio.closest('.question-card').querySelectorAll('.radio-option');
+            radioOptions.forEach(option => option.classList.remove('selected'));
+            radio.closest('.radio-option').classList.add('selected');
+            
+            updateProgress(level);
+        }
+
+        function updateProgress(level) {
+            const questions = document.querySelectorAll(`#level${level}Questions input[type="radio"]:checked`);
+            const totalQuestions = currentQuestions[`level${level}`].length;
+            const answeredCount = questions.length;
+            const percentage = totalQuestions > 0 ? (answeredCount / totalQuestions) * 100 : 0;
+            
+            const progressBar = document.getElementById(`level${level}Progress`);
+            const progressText = document.getElementById(`level${level}ProgressText`);
+            
+            progressBar.style.width = percentage + '%';
+            progressText.textContent = `${answeredCount}/${totalQuestions} questions answered`;
+        }
+
+        function evaluateLevel(level, passingScore, nextLevel = null) {
+            const totalQuestions = currentQuestions[`level${level}`].length;
+            const yesAnswers = document.querySelectorAll(`#level${level}Questions input[value="yes"]:checked`).length;
+            const answeredQuestions = document.querySelectorAll(`#level${level}Questions input[type="radio"]:checked`).length;
+            
+            if (answeredQuestions < totalQuestions) {
+                alert('Please answer all questions before evaluation.');
+                return;
+            }
+            
+            const percentage = (yesAnswers / totalQuestions) * 100;
+            
+            const resultsDiv = document.getElementById(`level${level}Results`);
+            const scoreDiv = document.getElementById(`level${level}Score`);
+            const statusDiv = document.getElementById(`level${level}Status`);
+            
+            scoreDiv.innerHTML = `
+                <strong>Assessment Score: ${yesAnswers}/${totalQuestions} "Yes" responses (${percentage.toFixed(1)}%)</strong><br>
+                <small>Required: ${Math.ceil(totalQuestions * passingScore / 100)}/${totalQuestions} (${passingScore}%)</small>
+            `;
+            
+            if (percentage >= passingScore) {
+                statusDiv.innerHTML = `
+                    <div style="color: #138808; font-weight: bold; margin-top: 15px;">
+                        ✅ Level ${level} PASSED - TEC India Compliance Achieved! 
+                        ${nextLevel ? `Proceeding to Level ${nextLevel}` : '🎉 TEC INDIA PQC CERTIFICATION GRANTED!'}
+                    </div>
+                `;
+                
+                if (nextLevel) {
+                    setTimeout(() => {
+                        document.getElementById(`level${nextLevel}Quiz`).classList.add('active');
+                        document.getElementById(`level${nextLevel}Quiz`).scrollIntoView({ behavior: 'smooth' });
+                    }, 1000);
+                }
+            } else {
+                statusDiv.innerHTML = `
+                    <div style="color: #dc2626; font-weight: bold; margin-top: 15px;">
+                        ❌ Level ${level} FAILED - TEC India Requirements Not Met<br>
+                        <small style="margin-top: 10px; display: block;">
+                            • Review TEC India PQC guidelines<br>
+                            • Enhance implementation security and compliance<br>
+                            • Conduct additional testing and validation<br>
+                            • Update documentation per Indian standards
+                        </small>
+                    </div>
+                `;
+            }
+            
+            resultsDiv.style.display = 'block';
+            resultsDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function evaluateLevel1() {
+            evaluateLevel(1, 85, 2);
+        }
+
+        function evaluateLevel2() {
+            evaluateLevel(2, 87, 3);
+        }
+
+        function evaluateLevel3() {
+            evaluateLevel(3, 90);
+        }
+
+        // Initialize with default questions
+        document.addEventListener('DOMContentLoaded', function() {
+            // Show placeholder initially
+        });
+    </script>
+</body>
+</html>
